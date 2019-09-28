@@ -223,7 +223,7 @@ def showCategories():
 @app.route('/category/new/', methods=['GET', 'POST'])
 def newCategory():
     if request.method == 'POST':
-        newCategory = Category(name=request.form['name'])
+        newCategory = Category(name=request.form['name'],user_id=login_session['user_id'])
         session.add(newCategory)
         flash('New Category %s Successfully Created' % newCategory.name)
         session.commit()
@@ -267,13 +267,13 @@ def deleteCategory(category_id):
 @app.route('/category/<int:category_id>/item/')
 def showItem(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
-    creator = getUserInfo(category.user_id)
+    #creator = getUserInfo(category.user_id)
     items = session.query(Item).filter_by(
         category_id=category_id).all()
-    if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('publicItem.html', items=items, category=category, creator=creator)
+    if 'username' not in login_session: #or creator.id != login_session['user_id']:
+        return render_template('publicItem.html', items=items, category=category)#, creator=creator)
     else:
-        return render_template('menu.html', items=items, category=category, creator=creator)
+        return render_template('menu.html', items=items, category=category)#, creator=creator)
         
 
 
@@ -282,7 +282,7 @@ def showItem(category_id):
 def newItem(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
     if request.method == 'POST':
-        newItem = Item(name=request.form['name'], description=request.form[
+        newItem = Item(name=request.form['name'], user_id=login_session['user_id'], description=request.form[
                            'description'], category_id=category_id)
         session.add(newItem)
         session.commit()
